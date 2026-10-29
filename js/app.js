@@ -162,9 +162,16 @@
 
   /* ---------- COUNTDOWN ---------- */
   var panelStasiun = $$(".stasiun");
-  var panelPos = []; // [offsetLeft, width] — di-cache, tanpa getBoundingClientRect per detik
+  var panelPos = []; // [offsetTrack, width] — di-cache, tanpa getBoundingClientRect per detik
+  function offsetKeTrack(el) {
+    // offsetLeft saja salah kalau leluhur antara (.panel) juga positioned —
+    // akumulasi sampai #track (kebal transform karena murni layout)
+    var x = 0;
+    while (el && el.id !== "track" && el !== document.body) { x += el.offsetLeft; el = el.offsetParent; }
+    return x;
+  }
   function ukurPanel() {
-    panelPos = panelStasiun.map(function (p) { return [p.offsetLeft, p.offsetWidth]; });
+    panelPos = panelStasiun.map(function (p) { return [offsetKeTrack(p), p.offsetWidth]; });
   }
   function stasiunAktif() {
     if (!panelPos.length) ukurPanel();
