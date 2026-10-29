@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="hijau">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>REL80 — Jadwal KRL Lintas Bogor ala Manual Teknis 80-an</title>
+<meta name="description" content="Jadwal KRL lintas Bogor–Jakarta Kota sebagai satu jalur rel horizontal ala manual teknis tahun 80-an. Rencanakan perjalanan, pantau keberangkatan contoh, cetak tiket.">
+<meta name="theme-color" content="#a8d5a2">
+<link rel="canonical" href="https://kayzenn123.github.io/agent-rel80/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="REL80 — Jadwal KRL Manual 80">
+<meta property="og:description" content="Satu jalur rel horizontal. 22 stasiun. Rencanakan perjalananmu, masinis.">
+<meta property="og:image" content="https://kayzenn123.github.io/agent-rel80/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preload" href="fonts/lexend-giga-wght.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/noto-permic-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<a class="skip" href="#bengkel">Lompat ke perencana perjalanan</a>
+
+<header class="topbar" role="banner">
+  <div class="brand" aria-label="REL80">
+    <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M6 4v24M26 4v24M6 10h20M6 16h20M6 22h20" stroke="currentColor" stroke-width="3" fill="none"/></svg>
+    <span class="brand-teks">REL<b>80</b> <em>djadwal krl · edisi lapangan</em></span>
+  </div>
+  <div class="km" aria-label="Kemajuan perjalanan"><span id="kmNow">KM 0</span><span class="km-sep">/</span><span>KM 48</span></div>
+  <nav class="top-aksi" aria-label="Kontrol halaman">
+    <button id="btnPrev" class="tbtn" aria-label="Stasiun sebelumnya">◀ <span class="tbtn-teks">Stasiun</span></button>
+    <button id="btnNext" class="tbtn" aria-label="Stasiun berikutnya"><span class="tbtn-teks">Stasiun</span> ▶</button>
+    <button id="btnMarquee" class="tbtn" aria-pressed="true" aria-label="Jeda atau jalankan pita pengumuman">⏸ Pita</button>
+    <button id="btnGerak" class="tbtn" aria-pressed="true" aria-label="Nyalakan atau matikan gerak">Gerak: Nyala</button>
+  </nav>
+</header>
+
+<div class="pin-wrap" id="pinWrap">
+  <div class="viewport" id="viewport">
+    <div class="parallax" aria-hidden="true">
+      <div class="layer l1"></div>
+      <div class="layer l2" id="layerKota"></div>
+      <div class="layer l3"></div>
+      <div class="layer l4" id="layerTiang"></div>
+      <div class="layer l5"></div>
+    </div>
+
+    <div class="pita pita-1" aria-hidden="true"><div class="pita-isi" id="pita1"></div></div>
+    <div class="pita pita-2" aria-hidden="true"><div class="pita-isi" id="pita2"></div></div>
+
+    <div class="world" id="world">
+      <svg class="rel-svg" id="relSvg" aria-hidden="true" preserveAspectRatio="none">
+        <path id="relA" class="rel-garis" d=""/>
+        <path id="relB" class="rel-garis rel-b" d=""/>
+      </svg>
+      <div class="track" id="track" role="main" aria-label="Jalur rel jadwal KRL">
+
+        <section class="panel loket" id="loket" aria-labelledby="judulUtama">
+          <p class="kicker">𐍐 gambar 01 · manual lapangan · revisi 1984</p>
+          <h1 id="judulUtama" class="judul-utama"><span>JADWAL</span> <span class="judul-krl">KRL</span></h1>
+          <p class="subjudul">Lintas <strong>Bogor – Jakarta Kota</strong>, 22 stasiun.<br>Geser ke kanan — keretamu sudah menunggu.</p>
+          <div class="loket-aksi">
+            <button class="btn btn-besar" id="btnNaik">NAIK ▲</button>
+            <label class="pilih-cepat">atau langsung ke
+              <select id="lompatStasiun" aria-label="Lompat ke stasiun"></select>
+            </label>
+          </div>
+          <p class="catatan-contoh"><span class="stempel">CONTOH</span> Semua jam &amp; tarif di halaman ini adalah contoh untuk peraga — bukan jadwal resmi KAI Commuter.</p>
+        </section>
+
+        <section class="panel jalur" id="jalurA" aria-label="Stasiun 1 sampai 7"><div class="panel-row" data-row="a"></div></section>
+
+        <section class="panel bengkel" id="bengkel" aria-labelledby="bengkelJudul" tabindex="-1">
+          <p class="kicker">𐍐 gambar 09 · bengkel perencana</p>
+          <h2 id="bengkelJudul" class="judul-panel">RANCANG<br>PERJALANAN</h2>
+          <form id="formRencana" class="form-rencana" novalidate>
+            <div class="field">
+              <label for="selDari">Dari</label>
+              <select id="selDari" required></select>
+            </div>
+            <div class="tukar-wrap"><button type="button" id="btnTukar" class="tbtn" aria-label="Tukar stasiun asal dan tujuan">⇄</button></div>
+            <div class="field">
+              <label for="selKe">Ke</label>
+              <select id="selKe" required></select>
+            </div>
+            <p class="form-error" id="formError" role="alert" hidden></p>
+            <div class="form-aksi">
+              <button type="submit" class="btn">HITUNG</button>
+              <button type="button" class="btn btn-ghost" id="btnFavorit">★ SIMPAN FAVORIT</button>
+            </div>
+          </form>
+          <div class="hasil" id="hasilRencana" aria-live="polite" hidden>
+            <p class="hasil-rute"><span id="hDari"></span> <span class="panah">▶▶</span> <span id="hKe"></span> <span class="stempel">CONTOH</span></p>
+            <dl class="hasil-data">
+              <div><dt>Berhenti di</dt><dd id="hBerhenti">–</dd></div>
+              <div><dt>Estimasi tempuh</dt><dd id="hDurasi">–</dd></div>
+              <div><dt>Tarif contoh</dt><dd id="hTarif">–</dd></div>
+              <div><dt>Transit</dt><dd>Langsung, tanpa ganti kereta</dd></div>
+            </dl>
+            <div class="hasil-aksi">
+              <button class="btn btn-kecil" id="btnTiket">CETAK TIKET</button>
+              <button class="btn btn-kecil btn-ghost" id="btnSalin">SALIN RENCANA</button>
+              <button class="btn btn-kecil btn-ghost" id="btnUnduhJson">JSON</button>
+              <button class="btn btn-kecil btn-ghost" id="btnUnduhCsv">CSV</button>
+            </div>
+          </div>
+          <div class="tiket-wrap" id="tiketWrap" hidden>
+            <div class="tiket" id="tiket" tabindex="0" aria-label="Tiket perjalanan contoh">
+              <div class="tiket-lubang" aria-hidden="true"></div>
+              <p class="tiket-kop">KARCIS PERJALANAN · REL80</p>
+              <p class="tiket-rute"><span id="tDari"></span> → <span id="tKe"></span></p>
+              <p class="tiket-nomor">No. <span id="tNomor" class="angka-titik">000000</span></p>
+              <p class="tiket-stempel stempel">CONTOH</p>
+            </div>
+            <p class="tiket-hint">Arahkan kursor / sentuh tiket untuk memiringkan. Ketuk 2× untuk mencetak ulang nomor.</p>
+          </div>
+        </section>
+
+        <section class="panel jalur" id="jalurB" aria-label="Stasiun 8 sampai 15"><div class="panel-row" data-row="b"></div></section>
+
+        <section class="panel peta-panel" id="petaPanel" aria-labelledby="petaJudul">
+          <p class="kicker">𐍐 gambar 17 · denah lintas</p>
+          <h2 id="petaJudul" class="judul-panel">DENAH<br>LINTAS</h2>
+          <p class="peta-hint">Arahkan / ketuk titik stasiun — warna halaman ikut berubah.</p>
+          <svg class="denah" id="denah" viewBox="0 0 1000 220" role="img" aria-label="Denah 22 stasiun lintas Bogor Jakarta Kota"></svg>
+          <div class="denah-list" id="denahList" aria-label="Daftar stasiun"></div>
+          <div class="tema-aksi" role="group" aria-label="Pilih warna dinas">
+            <button class="tbtn tema-btn" data-tema="hijau" aria-pressed="true">HIJAU</button>
+            <button class="tbtn tema-btn" data-tema="biru" aria-pressed="false">BIRU</button>
+            <button class="tbtn tema-btn" data-tema="merah" aria-pressed="false">MERAH</button>
+          </div>
+        </section>
+
+        <section class="panel jalur" id="jalurC" aria-label="Stasiun 16 sampai 22"><div class="panel-row" data-row="c"></div></section>
+
+        <section class="panel terminus" id="terminus" aria-labelledby="terminusJudul">
+          <p class="kicker">𐍐 gambar 22 · terminus</p>
+          <h2 id="terminusJudul" class="judul-panel">TIBA DI<br>TUJUAN</h2>
+          <p class="subjudul">Itu tadi seluruh lintas — 22 stasiun dalam satu tarikan napas.<br>Perhatian, perhatian: bawalah barang bawaan masing-masing.</p>
+          <div class="terminus-aksi">
+            <button class="btn" id="btnSalinSemua">SALIN SEMUA JADWAL CONTOH</button>
+            <button class="btn btn-ghost" id="btnUnduhSemua">UNDUH CSV</button>
+            <button class="btn btn-ghost" id="btnAwal">◀ KEMBALI KE LOKET</button>
+          </div>
+          <footer class="kaki">
+            <p>REL80 · disusun di atas kertas, bukan di awan · <span class="stempel">CONTOH</span></p>
+            <p class="kaki-kecil">Nama stasiun adalah fakta publik. Jam, tarif, dan durasi adalah contoh peraga. Bukan jadwal resmi.</p>
+          </footer>
+        </section>
+
+      </div>
+    </div>
+
+    <div class="kemajuan" aria-hidden="true"><div class="kemajuan-isi" id="kemajuanIsi"></div></div>
+  </div>
+</div>
+
+<noscript><p class="noscript">Halaman ini butuh JavaScript untuk menjalankan keretanya. Nyalakan dulu, ya.</p></noscript>
+<script src="js/app.js" defer></script>
+</body>
+</html>
